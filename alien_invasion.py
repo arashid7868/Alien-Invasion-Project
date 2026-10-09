@@ -1,3 +1,4 @@
+
 import sys
 import pygame
 
@@ -9,9 +10,11 @@ class AlienInvasion:
         pygame.init()
         pygame.mixer.init()
 
+        # Set up the game window.
         self.screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Alien Invasion")
 
+        # Load and scale the background.
         self.background = pygame.image.load(
             "Assets/images/Starbasesnow.png"
         )
@@ -19,21 +22,30 @@ class AlienInvasion:
             self.background, (800, 600)
         )
 
+        # Load the ship and position it at the bottom center.
         self.ship = pygame.image.load("Assets/images/ship.png")
         self.ship_rect = self.ship.get_rect()
         self.ship_rect.midbottom = self.screen.get_rect().midbottom
 
+        # Load the laser image and sound.
         self.laser_image = pygame.image.load(
             "Assets/images/laserBlast.png"
         )
         self.lasers = []
+        self.laser_sound = pygame.mixer.Sound(
+            "Assets/sound/laser.mp3"
+        )
 
-        self.laser_sound = pygame.mixer.Sound("Assets/sound/laser.mp3")
-
+        # Set movement and firing speeds.
         self.clock = pygame.time.Clock()
         self.ship_speed = 5
         self.laser_speed = 8
 
+        # Control repeated laser firing.
+        self.laser_cooldown = 150
+        self.last_laser_time = 0
+
+        # Track ship movement.
         self.moving_left = False
         self.moving_right = False
         self.moving_up = False
@@ -64,8 +76,6 @@ class AlienInvasion:
                     self.moving_up = True
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
                     self.moving_down = True
-                elif event.key == pygame.K_SPACE:
-                    self._fire_laser()
 
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_LEFT, pygame.K_a):
@@ -76,6 +86,19 @@ class AlienInvasion:
                     self.moving_up = False
                 elif event.key in (pygame.K_DOWN, pygame.K_s):
                     self.moving_down = False
+
+        # Fire repeatedly while Spacebar is held.
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_SPACE]:
+            current_time = pygame.time.get_ticks()
+
+            if (
+                current_time - self.last_laser_time
+                >= self.laser_cooldown
+            ):
+                self._fire_laser()
+                self.last_laser_time = current_time
 
     def _fire_laser(self):
         """Fire a laser from the ship."""
@@ -88,10 +111,13 @@ class AlienInvasion:
         """Move the ship while keeping it inside the window."""
         if self.moving_left:
             self.ship_rect.x -= self.ship_speed
+
         if self.moving_right:
             self.ship_rect.x += self.ship_speed
+
         if self.moving_up:
             self.ship_rect.y -= self.ship_speed
+
         if self.moving_down:
             self.ship_rect.y += self.ship_speed
 
@@ -101,6 +127,7 @@ class AlienInvasion:
         """Move lasers upward and remove off-screen lasers."""
         for laser in self.lasers[:]:
             laser.y -= self.laser_speed
+
             if laser.bottom < 0:
                 self.lasers.remove(laser)
 
