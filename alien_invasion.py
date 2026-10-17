@@ -1,132 +1,127 @@
 
+"""Run the Alien Invasion game using Pygame."""
+
 import sys
+from pathlib import Path
+
 import pygame
+
+from settings import Settings
+from ship import Ship
 
 
 class AlienInvasion:
-    """Manage the game window and its main loop."""
+    """Manage the game resources and behavior."""
 
     def __init__(self):
+        """Initialize the game and create its resources."""
         pygame.init()
-        pygame.mixer.init()
 
-        # Set up the game window.
-        self.screen = pygame.display.set_mode((800, 600))
-        pygame.display.set_caption("Alien Invasion")
+        self.settings = Settings()
+        self.base_path = Path(__file__).resolve().parent
 
-        # Load and scale the background.
+        self.screen = pygame.display.set_mode(
+            (
+                self.settings.screen_width,
+                self.settings.screen_height,
+            )
+        )
+
+        pygame.display.set_caption("Alien Invasion - Part 1")
+
+        background_path = (
+            self.base_path
+            / "Assets"
+            / "images"
+            / "Starbasesnow.png"
+        )
+
         self.background = pygame.image.load(
-            "Assets/images/Starbasesnow.png"
-        )
+            str(background_path)
+        ).convert()
+
         self.background = pygame.transform.scale(
-            self.background, (800, 600)
+            self.background,
+            (
+                self.settings.screen_width,
+                self.settings.screen_height,
+            ),
         )
 
-        # Load the ship and position it at the bottom center.
-        self.ship = pygame.image.load("Assets/images/ship.png")
-        self.ship_rect = self.ship.get_rect()
-        self.ship_rect.midbottom = self.screen.get_rect().midbottom
+        laser_image_path = (
+            self.base_path
+            / "Assets"
+            / "images"
+            / "laserBlast.png"
+        )
 
-        # Load the laser image and sound.
         self.laser_image = pygame.image.load(
-            "Assets/images/laserBlast.png"
+            str(laser_image_path)
+        ).convert_alpha()
+
+        laser_sound_path = (
+            self.base_path
+            / "Assets"
+            / "sound"
+            / "laser.mp3"
         )
-        self.lasers = []
+
         self.laser_sound = pygame.mixer.Sound(
-            "Assets/sound/laser.mp3"
+            str(laser_sound_path)
         )
 
-        # Set movement and firing speeds.
+        self.lasers = []
+
+        self.ship = Ship(self)
         self.clock = pygame.time.Clock()
-        self.ship_speed = 5
-        self.laser_speed = 8
-
-        # Control repeated laser firing.
-        self.laser_cooldown = 150
-        self.last_laser_time = 0
-
-        # Track ship movement.
-        self.moving_left = False
-        self.moving_right = False
-        self.moving_up = False
-        self.moving_down = False
 
     def run_game(self):
         """Run the main game loop."""
         while True:
             self._check_events()
-            self._move_ship()
+            self.ship.update()
             self._update_lasers()
             self._update_screen()
-            self.clock.tick(60)
+            self.clock.tick(self.settings.frame_rate)
 
     def _check_events(self):
         """Respond to keyboard and window events."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                self._quit_game()
 
             elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_LEFT, pygame.K_a):
-                    self.moving_left = True
-                elif event.key in (pygame.K_RIGHT, pygame.K_d):
-                    self.moving_right = True
-                elif event.key in (pygame.K_UP, pygame.K_w):
-                    self.moving_up = True
-                elif event.key in (pygame.K_DOWN, pygame.K_s):
-                    self.moving_down = True
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = True
+
+                elif event.key == pygame.K_SPACE:
+                    self._fire_laser()
+
+                elif event.key == pygame.K_q:
+                    self._quit_game()
 
             elif event.type == pygame.KEYUP:
-                if event.key in (pygame.K_LEFT, pygame.K_a):
-                    self.moving_left = False
-                elif event.key in (pygame.K_RIGHT, pygame.K_d):
-                    self.moving_right = False
-                elif event.key in (pygame.K_UP, pygame.K_w):
-                    self.moving_up = False
-                elif event.key in (pygame.K_DOWN, pygame.K_s):
-                    self.moving_down = False
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
 
-        # Fire repeatedly while Spacebar is held.
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_SPACE]:
-            current_time = pygame.time.get_ticks()
-
-            if (
-                current_time - self.last_laser_time
-                >= self.laser_cooldown
-            ):
-                self._fire_laser()
-                self.last_laser_time = current_time
+                elif event.key == pygame.K_LEFT:
+                    self.ship.moving_left = False
 
     def _fire_laser(self):
-        """Fire a laser from the ship."""
+        """Create a laser and play its firing sound."""
         laser_rect = self.laser_image.get_rect()
-        laser_rect.midbottom = self.ship_rect.midtop
+        laser_rect.midbottom = self.ship.rect.midtop
+
         self.lasers.append(laser_rect)
         self.laser_sound.play()
-
-    def _move_ship(self):
-        """Move the ship while keeping it inside the window."""
-        if self.moving_left:
-            self.ship_rect.x -= self.ship_speed
-
-        if self.moving_right:
-            self.ship_rect.x += self.ship_speed
-
-        if self.moving_up:
-            self.ship_rect.y -= self.ship_speed
-
-        if self.moving_down:
-            self.ship_rect.y += self.ship_speed
-
-        self.ship_rect.clamp_ip(self.screen.get_rect())
 
     def _update_lasers(self):
         """Move lasers upward and remove off-screen lasers."""
         for laser in self.lasers[:]:
-            laser.y -= self.laser_speed
+            laser.y -= self.settings.laser_speed
 
             if laser.bottom < 0:
                 self.lasers.remove(laser)
@@ -134,12 +129,18 @@ class AlienInvasion:
     def _update_screen(self):
         """Draw the background, ship, and lasers."""
         self.screen.blit(self.background, (0, 0))
-        self.screen.blit(self.ship, self.ship_rect)
+        self.ship.blitme()
 
         for laser in self.lasers:
             self.screen.blit(self.laser_image, laser)
 
         pygame.display.flip()
+
+    @staticmethod
+    def _quit_game():
+        """Shut down Pygame and exit."""
+        pygame.quit()
+        sys.exit()
 
 
 if __name__ == "__main__":
