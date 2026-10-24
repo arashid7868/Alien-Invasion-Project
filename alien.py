@@ -22,7 +22,7 @@ class Alien(Sprite):
         super().__init__()
 
         self.screen = game.screen
-        self.boundaries = game.screen.get_rect()
+        self.screen_rect = self.screen.get_rect()
         self.settings = game.settings
 
         self.image = pygame.image.load(self.settings.alien_file)
@@ -35,9 +35,23 @@ class Alien(Sprite):
         self.rect.x = x
         self.rect.y = y
 
+        self.x = float(self.rect.x)
+        self.direction = 1
+
     def update(self) -> None:
-        """Keep the alien stationary during the initial tutorial stage."""
-        pass
+        """Move the alien horizontally and reverse at screen edges."""
+        self.x += self.settings.alien_speed * self.direction
+        self.rect.x = round(self.x)
+
+        if self.rect.right >= self.screen_rect.right:
+            self.rect.right = self.screen_rect.right
+            self.x = float(self.rect.x)
+            self.direction = -1
+
+        elif self.rect.left <= self.screen_rect.left:
+            self.rect.left = self.screen_rect.left
+            self.x = float(self.rect.x)
+            self.direction = 1
 
     def draw_alien(self) -> None:
         """Draw the alien at its current position."""
