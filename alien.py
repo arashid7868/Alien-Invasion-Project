@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Alien(Sprite):
-    """A class to represent a single alien."""
+    """Represent a single alien in the fleet."""
 
     def __init__(
         self,
@@ -19,14 +19,17 @@ class Alien(Sprite):
         x: float,
         y: float,
     ) -> None:
-        """Initialize the alien and set its starting position."""
+        """Initialize the alien and set its position."""
         super().__init__()
 
         self.screen = game.screen
         self.screen_rect = self.screen.get_rect()
         self.settings = game.settings
 
-        self.image = pygame.image.load(self.settings.alien_file)
+        self.image = pygame.image.load(
+            self.settings.alien_file
+        ).convert_alpha()
+
         self.image = pygame.transform.scale(
             self.image,
             (self.settings.alien_w, self.settings.alien_h),
@@ -37,24 +40,28 @@ class Alien(Sprite):
         self.rect.y = round(y)
 
         self.x = float(self.rect.x)
-        self.direction = 1
 
     def update(self) -> None:
-        """Move the alien horizontally and reverse at screen edges."""
-        self.x += self.settings.alien_speed * self.direction
+        """Move the alien horizontally with the fleet."""
+        self.x += (
+            self.settings.alien_speed
+            * self.settings.alien_direction
+        )
         self.rect.x = round(self.x)
 
-        if self.rect.right >= self.screen_rect.right:
-            self.rect.right = self.screen_rect.right
-            self.x = float(self.rect.x)
-            self.direction = -1
-        elif self.rect.left <= self.screen_rect.left:
-            self.rect.left = self.screen_rect.left
-            self.x = float(self.rect.x)
-            self.direction = 1
+    def check_edges(self) -> bool:
+        """Return True if the alien has reached a screen edge."""
+        return (
+            self.rect.right >= self.screen_rect.right
+            or self.rect.left <= self.screen_rect.left
+        )
+
+    def drop_down(self, distance: int) -> None:
+        """Move the alien down by the specified distance."""
+        self.rect.y += distance
 
     def draw_alien(self) -> None:
-        """Draw the alien at its current position."""
+        """Draw the alien on the screen."""
         self.screen.blit(self.image, self.rect)
 
     @classmethod
@@ -64,15 +71,16 @@ class Alien(Sprite):
         aliens: pygame.sprite.Group,
         y: int,
     ) -> None:
-        """Create one row of aliens across the screen."""
+        """Create one evenly spaced row of aliens."""
         settings = game.settings
 
         alien_width = settings.alien_w
-        alien_height = settings.alien_h
-        horizontal_spacing = alien_width
+        spacing = settings.alien_spacing_x
+        right_margin = spacing
 
-        x = 0
-        while x + alien_width <= settings.screen_w:
+        x = spacing
+
+        while x + alien_width <= settings.screen_w - right_margin:
             alien = cls(game, x, y)
             aliens.add(alien)
-            x += alien_width + horizontal_spacing
+            x += alien_width + spacing

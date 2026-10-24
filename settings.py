@@ -37,10 +37,14 @@ class Settings:
         self.bullet_h = 80
         self.bullet_amount = 5
 
-        # Alien assets and movement
+        # Alien assets and fleet movement
         self.alien_file = (
             Path.cwd() / "Assets" / "images" / "enemy_4.png"
         )
         self.alien_w = 40
         self.alien_h = 40
         self.alien_speed = 1.0
+        self.alien_drop_speed = 10
+        self.alien_direction = 1
+        self.alien_spacing_x = 20
+        self.alien_top_margin = 30

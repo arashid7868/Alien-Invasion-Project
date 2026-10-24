@@ -1,25 +1,30 @@
 
-# Alien Invasion — Part 1
+# Alien Invasion — Part 2
 
 ## Project Overview
 
-This project follows the instructor's Alien Invasion tutorial using Python and Pygame. Part 1 focuses on creating the game window, displaying the background and player ship, handling keyboard input, implementing ship movement, and firing laser projectiles with sound.
+This project follows the instructor's Alien Invasion tutorial using Python and Pygame. Part 2 extends the existing game by adding an alien sprite, horizontal fleet movement, edge detection, downward fleet movement, bullet-alien collision detection, and a condition that stops gameplay when an alien reaches the bottom of the screen.
 
 ## Features
 
-- Pygame game window and background image
-- Player ship positioned at the bottom of the screen
-- Left and right arrow-key movement
-- Screen-boundary checks for the ship
-- Laser projectile firing with the Space key
-- Sound effect when firing lasers
-- Main game loop with frame-rate control
+- Game window with a background image
+- Player ship movement using the left and right arrow keys
+- Laser firing using the Space key
+- Laser firing sound effect
+- A row of evenly spaced aliens
+- Horizontal alien fleet movement
+- Fleet direction reversal at screen edges
+- Downward fleet movement when an edge is reached
+- Bullet-alien collision detection
+- Removal of bullets and aliens after a collision
+- Game termination when an alien reaches the bottom of the screen
+- Frame-rate control using Pygame
 
 ## Requirements
 
 - Python 3.12
 - Pygame 2.6.1
-- The supplied game assets in the `Assets/` directory
+- Supplied images and sound files in the `Assets/` directory
 
 ## Installation
 
@@ -36,28 +41,28 @@ Start the game with:
 ```powershell
 py -3.12 alien_invasion.py
 ```
+
 ## Controls
 
-Left arrow: Move the ship to the left.
-
-Right arrow: Move the ship to the right.
-
-Spacebar: Fire a laser projectile and play the firing sound.
-
-Q: Quit the game.
-
-You can also close the game window to exit.
-
-Use the left and right arrow keys to move the ship. Press Space to fire lasers. Close the game window to exit.
+- **Left arrow:** Move the ship left.
+- **Right arrow:** Move the ship right.
+- **Space:** Fire a laser.
+- **Q:** Quit the game.
+- **Window close button:** Close the game.
 
 ## Project Structure
 
 ```text
-Alien-Invasion-Project/
+alien_Invasion_starter/
 ├── Assets/
+│   ├── images/
+│   └── sound/
 ├── alien_invasion.py
-├── settings.py
+├── alien.py
+├── arsenal.py
+├── bullet.py
 ├── ship.py
+├── settings.py
 ├── requirements.txt
 ├── .gitignore
 └── README.md
@@ -65,13 +70,25 @@ Alien-Invasion-Project/
 
 ## Code Organization
 
-- `alien_invasion.py` manages the game window, event handling, game loop, background, laser projectiles, and sound.
-- `settings.py` stores the screen dimensions, frame rate, ship speed, and laser speed.
-- `ship.py` defines the player ship, movement, boundary checks, and drawing.
-- `Assets/` contains the images and sound files used by the game.
+- `alien_invasion.py` initializes the game, manages the main loop, handles keyboard input, coordinates fleet movement, checks collisions, and updates the screen.
+- `alien.py` defines the alien sprite, its image, horizontal movement, edge detection, downward movement, and row creation.
+- `ship.py` manages the player's ship and its movement.
+- `arsenal.py` manages laser projectiles, firing limits, projectile updates, and removal of off-screen projectiles.
+- `bullet.py` defines the projectile behavior.
+- `settings.py` stores screen dimensions, movement speeds, asset paths, fleet spacing, and other configuration values.
+- `Assets/` contains the images and sounds used by the game.
 - `requirements.txt` specifies the Python dependency.
-- `.gitignore` excludes local environment and generated Python files.
+
+## Testing
+
+The following behaviors were tested during development:
+
+- Aliens move horizontally together.
+- The fleet reverses direction at the screen edges.
+- The fleet moves downward when it reaches an edge.
+- Bullets destroy aliens on collision.
+- Gameplay stops when an alien reaches the bottom of the screen.
 
 ## Tutorial Scope
 
-This repository documents the Part 1 implementation. Additional gameplay features should be added only as the corresponding tutorial sections are covered.
+This repository builds on the Part 1 implementation and adds the alien fleet and collision behaviors covered in Part 2. Features such as scoring, levels, a play button, and a restart system are outside the current documented implementation.
