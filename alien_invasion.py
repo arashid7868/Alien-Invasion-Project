@@ -24,7 +24,7 @@ class AlienInvasion:
         )
         pygame.display.set_caption(self.settings.name)
 
-        self.bg = pygame.image.load(self.settings.bg_file)
+        self.bg = pygame.image.load(self.settings.bg_file).convert()
         self.bg = pygame.transform.scale(
             self.bg,
             (self.settings.screen_w, self.settings.screen_h),
@@ -33,23 +33,22 @@ class AlienInvasion:
         self.running = True
         self.clock = pygame.time.Clock()
 
-        # Initialize the audio and laser sound.
         pygame.mixer.init()
         self.laser_sound = pygame.mixer.Sound(self.settings.laser_sound)
         self.laser_sound.set_volume(0.7)
 
-        # Inject Arsenal into Ship.
         self.ship = Ship(self, Arsenal(self))
 
-        # Create one stationary alien for Tutorial 7.
-        self.alien = Alien(self, 10, 10)
+        # Create one row of aliens.
+        self.aliens = pygame.sprite.Group()
+        Alien.create_aliens_row(self, self.aliens, y=30)
 
     def run_game(self) -> None:
         """Run the main game loop."""
         while self.running:
             self._check_events()
             self.ship.update()
-            self.alien.update()
+            self.aliens.update()
             self._update_screen()
             self.clock.tick(self.settings.fps)
 
@@ -57,7 +56,10 @@ class AlienInvasion:
         """Draw the current game screen."""
         self.screen.blit(self.bg, (0, 0))
         self.ship.draw()
-        self.alien.draw_alien()
+
+        for alien in self.aliens.sprites():
+            alien.draw_alien()
+
         pygame.display.flip()
 
     def _check_events(self) -> None:

@@ -1,9 +1,10 @@
 
 """Define the alien sprite."""
 
+from typing import TYPE_CHECKING
+
 import pygame
 from pygame.sprite import Sprite
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from alien_invasion import AlienInvasion
@@ -32,8 +33,8 @@ class Alien(Sprite):
         )
 
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = round(x)
+        self.rect.y = round(y)
 
         self.x = float(self.rect.x)
         self.direction = 1
@@ -47,7 +48,6 @@ class Alien(Sprite):
             self.rect.right = self.screen_rect.right
             self.x = float(self.rect.x)
             self.direction = -1
-
         elif self.rect.left <= self.screen_rect.left:
             self.rect.left = self.screen_rect.left
             self.x = float(self.rect.x)
@@ -56,3 +56,23 @@ class Alien(Sprite):
     def draw_alien(self) -> None:
         """Draw the alien at its current position."""
         self.screen.blit(self.image, self.rect)
+
+    @classmethod
+    def create_aliens_row(
+        cls,
+        game: "AlienInvasion",
+        aliens: pygame.sprite.Group,
+        y: int,
+    ) -> None:
+        """Create one row of aliens across the screen."""
+        settings = game.settings
+
+        alien_width = settings.alien_w
+        alien_height = settings.alien_h
+        horizontal_spacing = alien_width
+
+        x = 0
+        while x + alien_width <= settings.screen_w:
+            alien = cls(game, x, y)
+            aliens.add(alien)
+            x += alien_width + horizontal_spacing
