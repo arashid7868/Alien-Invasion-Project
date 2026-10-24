@@ -36,13 +36,24 @@ Start the game with:
 ```powershell
 py -3.12 alien_invasion.py
 ```
+## Controls
+
+Left arrow: Move the ship to the left.
+
+Right arrow: Move the ship to the right.
+
+Spacebar: Fire a laser projectile and play the firing sound.
+
+Q: Quit the game.
+
+You can also close the game window to exit.
 
 Use the left and right arrow keys to move the ship. Press Space to fire lasers. Close the game window to exit.
 
 ## Project Structure
 
 ```text
-Alien-Invasion-Tutorial/
+Alien-Invasion-Project/
 ├── Assets/
 ├── alien_invasion.py
 ├── settings.py
