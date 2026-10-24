@@ -5,6 +5,7 @@ import sys
 
 import pygame
 
+from alien import Alien
 from arsenal import Arsenal
 from settings import Settings
 from ship import Ship
@@ -40,11 +41,15 @@ class AlienInvasion:
         # Inject Arsenal into Ship.
         self.ship = Ship(self, Arsenal(self))
 
+        # Create one stationary alien for Tutorial 7.
+        self.alien = Alien(self, 10, 10)
+
     def run_game(self) -> None:
         """Run the main game loop."""
         while self.running:
             self._check_events()
             self.ship.update()
+            self.alien.update()
             self._update_screen()
             self.clock.tick(self.settings.fps)
 
@@ -52,6 +57,7 @@ class AlienInvasion:
         """Draw the current game screen."""
         self.screen.blit(self.bg, (0, 0))
         self.ship.draw()
+        self.alien.draw_alien()
         pygame.display.flip()
 
     def _check_events(self) -> None:
