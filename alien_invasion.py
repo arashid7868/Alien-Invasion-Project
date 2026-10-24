@@ -34,6 +34,7 @@ class AlienInvasion:
 
         self.running = True
         self.clock = pygame.time.Clock()
+        self.space_pressed = False
 
         pygame.mixer.init()
         self.laser_sound = pygame.mixer.Sound(
@@ -43,8 +44,12 @@ class AlienInvasion:
 
         self.ship = Ship(self, Arsenal(self))
 
-        # Create one row of aliens.
+        # Create the initial row of aliens.
         self.aliens = pygame.sprite.Group()
+        self._create_fleet()
+
+    def _create_fleet(self) -> None:
+        """Create a row of aliens."""
         Alien.create_aliens_row(
             self,
             self.aliens,
@@ -56,18 +61,20 @@ class AlienInvasion:
         while self.running:
             self._check_events()
 
+            if not self.running:
+                break
+
+            self.ship.update()
+            self.ship.arsenal.update_arsenal()
+
+            self._check_fleet_edges()
+            self.aliens.update()
+
+            self._check_bullet_alien_collisions()
+            self._check_aliens_bottom()
+
             if self.running:
-                self.ship.update()
-                self.ship.arsenal.update_arsenal()
-
-                self._check_fleet_edges()
-                self.aliens.update()
-
-                self._check_bullet_alien_collisions()
-                self._check_aliens_bottom()
-
-                if self.running:
-                    self._update_screen()
+                self._update_screen()
 
             self.clock.tick(self.settings.fps)
 
@@ -95,13 +102,16 @@ class AlienInvasion:
                 break
 
     def _check_bullet_alien_collisions(self) -> None:
-        """Remove bullets and aliens when they collide."""
+        """Remove hit aliens and recreate the fleet when it is empty."""
         pygame.sprite.groupcollide(
             self.ship.arsenal.arsenal,
             self.aliens,
             True,
             True,
         )
+
+        if not self.aliens:
+            self._create_fleet()
 
     def _update_screen(self) -> None:
         """Draw the background, bullets, aliens, and ship."""
@@ -113,7 +123,6 @@ class AlienInvasion:
             alien.draw_alien()
 
         self.ship.draw()
-
         pygame.display.flip()
 
     def _check_events(self) -> None:
@@ -128,16 +137,6 @@ class AlienInvasion:
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
 
-    def _check_keyup_events(
-        self, event: pygame.event.Event
-    ) -> None:
-        """Stop ship movement when a key is released."""
-        if event.key == pygame.K_RIGHT:
-            self.ship.moving_right = False
-
-        elif event.key == pygame.K_LEFT:
-            self.ship.moving_left = False
-
     def _check_keydown_events(
         self, event: pygame.event.Event
     ) -> None:
@@ -149,11 +148,27 @@ class AlienInvasion:
             self.ship.moving_left = True
 
         elif event.key == pygame.K_SPACE:
-            if self.ship.fire():
-                self.laser_sound.play()
+            if not self.space_pressed:
+                self.space_pressed = True
+
+                if self.ship.fire():
+                    self.laser_sound.play()
 
         elif event.key == pygame.K_q:
             self._quit_game()
+
+    def _check_keyup_events(
+        self, event: pygame.event.Event
+    ) -> None:
+        """Respond when keys are released."""
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = False
+
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = False
+
+        elif event.key == pygame.K_SPACE:
+            self.space_pressed = False
 
     @staticmethod
     def _quit_game() -> None:
