@@ -1,3 +1,4 @@
+
 """Manage the alien fleet and its formation."""
 
 import pygame
@@ -23,42 +24,62 @@ class AlienFleet:
         screen_w: int,
     ) -> int:
         """Calculate how many aliens fit across the screen."""
-        spacing = self.settings.alien_spacing_x
-        usable_width = screen_w - (2 * spacing)
-
-        if alien_w + spacing <= 0:
+        if alien_w <= 0:
             return 0
+
+        available_space_x = screen_w - (2 * alien_w)
 
         return max(
             0,
-            (usable_width + spacing) // (alien_w + spacing),
+            available_space_x // (2 * alien_w),
+        )
+
+    def calculate_fleet_rows(
+        self,
+        alien_h: int,
+        screen_h: int,
+    ) -> int:
+        """Calculate how many alien rows fit on the screen."""
+        if alien_h <= 0:
+            return 0
+
+        ship_height = self.game.ship.rect.height
+
+        available_space_y = (
+            screen_h - (3 * alien_h) - ship_height
+        )
+
+        return max(
+            0,
+            available_space_y // (2 * alien_h),
         )
 
     def create_fleet(self) -> None:
-        """Create a centered row of aliens."""
+        """Create the full fleet of aliens."""
         alien_width = self.settings.alien_w
-        screen_width = self.settings.screen_w
-        spacing = self.settings.alien_spacing_x
+        alien_height = self.settings.alien_h
 
-        fleet_size = self.calculate_fleet_size(
+        columns = self.calculate_fleet_size(
             alien_width,
-            screen_width,
+            self.settings.screen_w,
         )
 
-        if fleet_size == 0:
-            return
-
-        fleet_width = (
-            fleet_size * alien_width
-            + (fleet_size - 1) * spacing
+        rows = self.calculate_fleet_rows(
+            alien_height,
+            self.settings.screen_h,
         )
-        x_offset = (screen_width - fleet_width) // 2
-        y = self.settings.alien_top_margin
 
-        for column in range(fleet_size):
-            x = x_offset + column * (alien_width + spacing)
-            alien = Alien(self, x, y)
-            self.aliens.add(alien)
+        for row_number in range(rows):
+            for alien_number in range(columns):
+                x = alien_width + (
+                    2 * alien_width * alien_number
+                )
+                y = alien_height + (
+                    2 * alien_height * row_number
+                )
+
+                alien = Alien(self, x, y)
+                self.aliens.add(alien)
 
     def update(self) -> None:
         """Update the position of every alien."""
@@ -81,7 +102,9 @@ class AlienFleet:
         self.settings.alien_direction *= -1
 
         for alien in self.aliens.sprites():
-            alien.drop_down(self.settings.alien_drop_speed)
+            alien.drop_down(
+                self.settings.alien_drop_speed
+            )
 
     def check_bottom(self) -> bool:
         """Check whether any alien has reached the screen bottom."""

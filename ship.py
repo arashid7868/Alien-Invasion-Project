@@ -24,6 +24,7 @@ class Ship:
         self.image = pygame.image.load(
             self.settings.ship_file
         ).convert_alpha()
+
         self.image = pygame.transform.scale(
             self.image,
             (self.settings.ship_w, self.settings.ship_h),
@@ -59,6 +60,14 @@ class Ship:
         if self.rect.right > self.boundaries.right:
             self.rect.right = self.boundaries.right
             self.x = float(self.rect.x)
+
+    def center_ship(self) -> None:
+        """Return the ship to the bottom-center position."""
+        self.rect.midbottom = self.boundaries.midbottom
+        self.x = float(self.rect.x)
+
+        self.moving_right = False
+        self.moving_left = False
 
     def draw(self) -> None:
         """Draw the player's ship."""

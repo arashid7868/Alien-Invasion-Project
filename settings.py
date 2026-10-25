@@ -9,12 +9,13 @@ class Settings:
 
     def __init__(self) -> None:
         """Initialize the game's settings."""
+        # Screen settings
         self.name: str = "Alien Invasion"
-        self.screen_w: int = 900
-        self.screen_h: int = 600
+        self.screen_w: int = 1200
+        self.screen_h: int = 800
         self.fps: int = 60
 
-        # Background and ship assets
+        # Ship settings
         self.bg_file = (
             Path.cwd() / "Assets" / "images" / "Starbasesnow.png"
         )
@@ -24,8 +25,9 @@ class Settings:
         self.ship_w = 40
         self.ship_h = 60
         self.ship_speed = 5
+        self.ship_limit = 3
 
-        # Bullet assets and settings
+        # Projectile settings
         self.bullet_file = (
             Path.cwd() / "Assets" / "images" / "laserBlast.png"
         )
@@ -37,14 +39,14 @@ class Settings:
         self.bullet_h = 80
         self.bullet_amount = 5
 
-        # Alien assets and fleet movement
+        # Alien fleet settings
         self.alien_file = (
             Path.cwd() / "Assets" / "images" / "enemy_4.png"
         )
-        self.alien_w = 40
-        self.alien_h = 40
-        self.alien_speed = 1.0
-        self.alien_drop_speed = 10
+        self.alien_w = 80
+        self.alien_h = 80
+        self.alien_speed = 5
+        self.alien_drop_speed = 40
         self.alien_direction = 1
-        self.alien_spacing_x = 20
-        self.alien_top_margin = 30
+        self.alien_spacing_x = 80
+        self.alien_top_margin = 80

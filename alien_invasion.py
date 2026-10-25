@@ -1,3 +1,4 @@
+
 """Run the Alien Invasion game using Pygame."""
 
 import sys
@@ -34,6 +35,7 @@ class AlienInvasion:
         self.running = True
         self.clock = pygame.time.Clock()
         self.space_pressed = False
+        self.ships_left = self.settings.ship_limit
 
         pygame.mixer.init()
         self.laser_sound = pygame.mixer.Sound(
@@ -60,10 +62,11 @@ class AlienInvasion:
 
             self.fleet.update()
 
+            self._check_ship_alien_collision()
             self._check_bullet_alien_collisions()
 
-            if self.fleet.check_bottom():
-                self.running = False
+            if self.running and self.fleet.check_bottom():
+                self._ship_hit()
 
             if self.running:
                 self._update_screen()
@@ -71,6 +74,35 @@ class AlienInvasion:
             self.clock.tick(self.settings.fps)
 
         pygame.quit()
+
+    def _check_ship_alien_collision(self) -> None:
+        """Respond when an alien collides with the ship."""
+        if pygame.sprite.spritecollideany(
+            self.ship,
+            self.fleet.aliens,
+        ):
+            self._ship_hit()
+
+    def _ship_hit(self) -> None:
+        """Respond to a ship collision or an alien reaching the bottom."""
+        if self.ships_left > 0:
+            self.ships_left -= 1
+
+            print(f"Ship hit! Ships remaining: {self.ships_left}")
+
+            self.ship.arsenal.arsenal.empty()
+            self.fleet.aliens.empty()
+
+            self.ship.center_ship()
+            self.fleet.create_fleet()
+
+            self.space_pressed = False
+
+            pygame.time.delay(500)
+
+        else:
+            print("Game over!")
+            self.running = False
 
     def _check_bullet_alien_collisions(self) -> None:
         """Remove aliens hit by projectiles."""
@@ -81,7 +113,8 @@ class AlienInvasion:
             True,
         )
 
-        if not self.fleet.aliens:
+        if not self.fleet.aliens and self.running:
+            self.ship.arsenal.arsenal.empty()
             self.fleet.create_fleet()
 
     def _update_screen(self) -> None:
