@@ -1,6 +1,9 @@
 ﻿
-import pygame
+"""Manage the player's ship."""
+
 from typing import TYPE_CHECKING
+
+import pygame
 
 from arsenal import Arsenal
 
@@ -12,12 +15,15 @@ class Ship:
     """Manage the player's ship."""
 
     def __init__(self, game: "AlienInvasion", arsenal: Arsenal) -> None:
+        """Initialize the ship."""
         self.game = game
         self.settings = game.settings
         self.screen = game.screen
         self.boundaries = self.screen.get_rect()
 
-        self.image = pygame.image.load(self.settings.ship_file)
+        self.image = pygame.image.load(
+            self.settings.ship_file
+        ).convert_alpha()
         self.image = pygame.transform.scale(
             self.image,
             (self.settings.ship_w, self.settings.ship_h),
@@ -28,30 +34,34 @@ class Ship:
 
         self.moving_right = False
         self.moving_left = False
-
         self.x = float(self.rect.x)
+
         self.arsenal = arsenal
 
     def update(self) -> None:
-        """Update the ship and its projectiles."""
+        """Update ship movement."""
         self._update_ship_movement()
-        self.arsenal.update_arsenal()
 
     def _update_ship_movement(self) -> None:
         """Move the ship while keeping it inside the screen."""
-        temp_speed = self.settings.ship_speed
-
         if self.moving_right and self.rect.right < self.boundaries.right:
-            self.x += temp_speed
+            self.x += self.settings.ship_speed
 
         if self.moving_left and self.rect.left > self.boundaries.left:
-            self.x -= temp_speed
+            self.x -= self.settings.ship_speed
 
-        self.rect.x = self.x
+        self.rect.x = round(self.x)
+
+        if self.rect.left < self.boundaries.left:
+            self.rect.left = self.boundaries.left
+            self.x = float(self.rect.x)
+
+        if self.rect.right > self.boundaries.right:
+            self.rect.right = self.boundaries.right
+            self.x = float(self.rect.x)
 
     def draw(self) -> None:
-        """Draw projectiles and the ship."""
-        self.arsenal.draw()
+        """Draw the player's ship."""
         self.screen.blit(self.image, self.rect)
 
     def fire(self) -> bool:

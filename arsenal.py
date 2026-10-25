@@ -1,6 +1,9 @@
 
-import pygame
+"""Manage the player's projectiles."""
+
 from typing import TYPE_CHECKING
+
+import pygame
 
 from bullet import Bullet
 
@@ -12,6 +15,7 @@ class Arsenal:
     """Manage the player's projectiles."""
 
     def __init__(self, game: "AlienInvasion") -> None:
+        """Initialize the projectile group."""
         self.game = game
         self.settings = game.settings
         self.arsenal = pygame.sprite.Group()
@@ -29,9 +33,10 @@ class Arsenal:
     def fire_bullet(self) -> bool:
         """Fire if the projectile limit has not been reached."""
         if len(self.arsenal) < self.settings.bullet_amount:
-            new_bullet = Bullet(self.game)
-            self.arsenal.add(new_bullet)
+            bullet = Bullet(self.game)
+            self.arsenal.add(bullet)
             return True
+
         return False
 
     def remove_bullets_offscreen(self) -> None:
