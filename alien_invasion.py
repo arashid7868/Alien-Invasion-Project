@@ -1,11 +1,10 @@
-
 """Run the Alien Invasion game using Pygame."""
 
 import sys
 
 import pygame
 
-from alien import Alien
+from alien_fleet import AlienFleet
 from arsenal import Arsenal
 from settings import Settings
 from ship import Ship
@@ -43,18 +42,7 @@ class AlienInvasion:
         self.laser_sound.set_volume(0.7)
 
         self.ship = Ship(self, Arsenal(self))
-
-        # Create the initial row of aliens.
-        self.aliens = pygame.sprite.Group()
-        self._create_fleet()
-
-    def _create_fleet(self) -> None:
-        """Create a row of aliens."""
-        Alien.create_aliens_row(
-            self,
-            self.aliens,
-            y=self.settings.alien_top_margin,
-        )
+        self.fleet = AlienFleet(self)
 
     def run_game(self) -> None:
         """Run the main game loop."""
@@ -67,11 +55,15 @@ class AlienInvasion:
             self.ship.update()
             self.ship.arsenal.update_arsenal()
 
-            self._check_fleet_edges()
-            self.aliens.update()
+            if self.fleet.check_edges():
+                self.fleet.change_direction()
+
+            self.fleet.update()
 
             self._check_bullet_alien_collisions()
-            self._check_aliens_bottom()
+
+            if self.fleet.check_bottom():
+                self.running = False
 
             if self.running:
                 self._update_screen()
@@ -80,49 +72,26 @@ class AlienInvasion:
 
         pygame.quit()
 
-    def _check_fleet_edges(self) -> None:
-        """Reverse and lower the fleet when an alien reaches an edge."""
-        for alien in self.aliens.sprites():
-            if alien.check_edges():
-                self._change_fleet_direction()
-                break
-
-    def _change_fleet_direction(self) -> None:
-        """Move the fleet down and reverse its horizontal direction."""
-        self.settings.alien_direction *= -1
-
-        for alien in self.aliens.sprites():
-            alien.drop_down(self.settings.alien_drop_speed)
-
-    def _check_aliens_bottom(self) -> None:
-        """Stop gameplay if an alien reaches the bottom of the screen."""
-        for alien in self.aliens.sprites():
-            if alien.rect.bottom >= self.settings.screen_h:
-                self.running = False
-                break
-
     def _check_bullet_alien_collisions(self) -> None:
-        """Remove hit aliens and recreate the fleet when it is empty."""
+        """Remove aliens hit by projectiles."""
         pygame.sprite.groupcollide(
             self.ship.arsenal.arsenal,
-            self.aliens,
+            self.fleet.aliens,
             True,
             True,
         )
 
-        if not self.aliens:
-            self._create_fleet()
+        if not self.fleet.aliens:
+            self.fleet.create_fleet()
 
     def _update_screen(self) -> None:
-        """Draw the background, bullets, aliens, and ship."""
+        """Draw the background, projectiles, aliens, and ship."""
         self.screen.blit(self.bg, (0, 0))
 
         self.ship.arsenal.draw()
-
-        for alien in self.aliens.sprites():
-            alien.draw_alien()
-
+        self.fleet.draw()
         self.ship.draw()
+
         pygame.display.flip()
 
     def _check_events(self) -> None:
@@ -138,7 +107,8 @@ class AlienInvasion:
                 self._check_keyup_events(event)
 
     def _check_keydown_events(
-        self, event: pygame.event.Event
+        self,
+        event: pygame.event.Event,
     ) -> None:
         """Respond to key presses."""
         if event.key == pygame.K_RIGHT:
@@ -158,7 +128,8 @@ class AlienInvasion:
             self._quit_game()
 
     def _check_keyup_events(
-        self, event: pygame.event.Event
+        self,
+        event: pygame.event.Event,
     ) -> None:
         """Respond when keys are released."""
         if event.key == pygame.K_RIGHT:
