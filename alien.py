@@ -1,4 +1,12 @@
-"""Define the alien sprite."""
+
+"""
+Program Name: Alien Invasion - Advancing Enemy
+Author: Abdullah Rashid
+Purpose: Define an enemy that advances toward the player's ship
+while moving horizontally with its formation.
+Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
+Date Updated: November 11, 2026
+"""
 
 from typing import TYPE_CHECKING
 
@@ -10,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class Alien(Sprite):
-    """Represent a single alien in the fleet."""
+    """Represent an advancing enemy spaceship."""
 
     def __init__(
         self,
@@ -18,7 +26,7 @@ class Alien(Sprite):
         x: float,
         y: float,
     ) -> None:
-        """Initialize the alien and set its position."""
+        """Initialize the alien and set its starting position."""
         super().__init__()
 
         self.fleet = fleet
@@ -43,26 +51,32 @@ class Alien(Sprite):
         self.rect.y = round(y)
 
         self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
 
     def update(self) -> None:
-        """Move the alien horizontally with the fleet."""
+        """Advance the alien downward and move it horizontally."""
         self.x += (
             self.settings.alien_speed
             * self.settings.alien_direction
         )
+
+        self.y += self.settings.alien_approach_speed
+
         self.rect.x = round(self.x)
+        self.rect.y = round(self.y)
 
     def check_edges(self) -> bool:
-        """Return True if the alien has reached a screen edge."""
+        """Return True when the alien reaches a screen edge."""
         return (
             self.rect.right >= self.screen_rect.right
             or self.rect.left <= self.screen_rect.left
         )
 
     def drop_down(self, distance: int) -> None:
-        """Move the alien down by the specified distance."""
-        self.rect.y += distance
+        """Move the alien downward by a specified distance."""
+        self.y += distance
+        self.rect.y = round(self.y)
 
     def draw_alien(self) -> None:
-        """Draw the alien on the screen."""
+        """Draw the enemy spaceship."""
         self.screen.blit(self.image, self.rect)

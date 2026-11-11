@@ -1,5 +1,11 @@
 
-"""Run the Alien Invasion game using Pygame."""
+"""
+Program Name: Alien Invasion - Track 1: Custom Game Mechanics
+Author: Abdullah Rashid
+Purpose: Run the space shooter game and manage player and enemy attacks.
+Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
+Date Updated: November 11, 2026
+"""
 
 import sys
 
@@ -8,6 +14,7 @@ import pygame
 from alien_fleet import AlienFleet
 from arsenal import Arsenal
 from button import Button
+from enemy_arsenal import EnemyArsenal
 from game_stats import GameStats
 from hud import HUD
 from settings import Settings
@@ -56,6 +63,7 @@ class AlienInvasion:
         self.game_stats = GameStats(self)
         self.ship = Ship(self, Arsenal(self))
         self.fleet = AlienFleet(self)
+        self.enemy_arsenal = EnemyArsenal(self)
 
         # Create interface components.
         self.play_button = Button(self)
@@ -75,7 +83,11 @@ class AlienInvasion:
 
                 self.fleet.update()
 
+                # Update enemy attacks.
+                self.enemy_arsenal.update()
+
                 self._check_ship_alien_collision()
+                self._check_enemy_bullet_collision()
                 self._check_bullet_alien_collisions()
 
                 if (
@@ -99,6 +111,7 @@ class AlienInvasion:
 
         self.ship.center_ship()
         self.ship.arsenal.arsenal.empty()
+        self.enemy_arsenal.empty()
 
         self.fleet.aliens.empty()
         self.fleet.create_fleet()
@@ -112,7 +125,7 @@ class AlienInvasion:
         pygame.mouse.set_visible(False)
 
     def _ship_hit(self) -> None:
-        """Respond to a collision between the ship and an alien."""
+        """Respond to a collision between the ship and an alien or projectile."""
         if not self.game_stats.game_active:
             return
 
@@ -122,6 +135,7 @@ class AlienInvasion:
             self.game_stats.ships_left -= 1
 
             self.ship.arsenal.arsenal.empty()
+            self.enemy_arsenal.empty()
             self.fleet.aliens.empty()
 
             self.ship.center_ship()
@@ -143,6 +157,14 @@ class AlienInvasion:
         if pygame.sprite.spritecollideany(
             self.ship,
             self.fleet.aliens,
+        ):
+            self._ship_hit()
+
+    def _check_enemy_bullet_collision(self) -> None:
+        """Check whether an enemy projectile has hit the ship."""
+        if pygame.sprite.spritecollideany(
+            self.ship,
+            self.enemy_arsenal.projectiles,
         ):
             self._ship_hit()
 
@@ -170,6 +192,7 @@ class AlienInvasion:
 
         if not self.fleet.aliens and self.game_stats.game_active:
             self.ship.arsenal.arsenal.empty()
+            self.enemy_arsenal.empty()
 
             self.game_stats.level += 1
             self.settings.increase_speed()
@@ -185,6 +208,7 @@ class AlienInvasion:
 
         if self.game_stats.game_active:
             self.ship.arsenal.draw()
+            self.enemy_arsenal.draw()
             self.fleet.draw()
             self.ship.draw()
             self.hud.draw()

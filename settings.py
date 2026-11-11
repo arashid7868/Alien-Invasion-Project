@@ -1,5 +1,11 @@
 
-"""Store configuration values for Alien Invasion."""
+"""
+Program Name: Alien Invasion - Track 1: Custom Game Mechanics
+Author: Abdullah Rashid
+Purpose: Configure player, enemy, projectile, asset, and gameplay settings.
+Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
+Date Updated: November 11, 2026
+"""
 
 from pathlib import Path
 
@@ -11,7 +17,7 @@ class Settings:
         """Initialize the game's settings."""
 
         # Screen settings
-        self.name = "Alien Invasion"
+        self.name = "Alien Invasion - Track 1: Mechanics"
         self.screen_w = 1200
         self.screen_h = 800
         self.fps = 60
@@ -28,6 +34,9 @@ class Settings:
         )
         self.bullet_file = (
             Path.cwd() / "Assets" / "images" / "laserBlast.png"
+        )
+        self.enemy_bullet_file = (
+            Path.cwd() / "Assets" / "images" / "beams.png"
         )
         self.laser_sound = (
             Path.cwd() / "Assets" / "sound" / "laser.mp3"
@@ -54,20 +63,32 @@ class Settings:
         self.ship_speed = 5
         self.ship_limit = 3
 
-        # Projectile settings
+        # Player projectile settings
         self.bullet_speed = 7
         self.bullet_w = 25
         self.bullet_h = 80
         self.bullet_amount = 5
 
+        # Enemy projectile settings
+        self.enemy_bullet_speed = 4
+        self.enemy_bullet_w = 20
+        self.enemy_bullet_h = 40
+        self.enemy_bullet_amount = 8
+        self.base_enemy_fire_interval = 1500
+        self.minimum_enemy_fire_interval = 350
+
         # Alien fleet settings
         self.alien_w = 80
         self.alien_h = 80
         self.alien_speed = 5
+        self.alien_approach_speed = 0.5
         self.alien_drop_speed = 40
         self.alien_direction = 1
         self.alien_spacing_x = 80
         self.alien_top_margin = 80
+
+        # Enemy formation settings
+        self.enemy_group_size = 5
 
         # Scoring settings
         self.alien_points = 50
@@ -88,22 +109,35 @@ class Settings:
         self.button_text_color = (0, 0, 0)
         self.button_font_size = 32
 
-        # Initialize dynamic settings
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self) -> None:
-        """Initialize settings that change as the game progresses."""
+        """Reset settings that change as gameplay progresses."""
         self.ship_speed = 5
         self.bullet_speed = 7
+        self.enemy_bullet_speed = 4
+        self.enemy_fire_interval = self.base_enemy_fire_interval
         self.alien_speed = 5
+        self.alien_approach_speed = 0.5
         self.alien_direction = 1
         self.alien_points = 50
 
     def increase_speed(self) -> None:
-        """Increase game speed and scoring as difficulty rises."""
+        """Increase difficulty and scoring as levels progress."""
         self.ship_speed *= self.speedup_scale
         self.bullet_speed *= self.speedup_scale
+        self.enemy_bullet_speed *= self.speedup_scale
         self.alien_speed *= self.speedup_scale
+        self.alien_approach_speed *= self.speedup_scale
+
+        self.enemy_fire_interval = max(
+            self.minimum_enemy_fire_interval,
+            int(
+                self.enemy_fire_interval
+                / self.speedup_scale
+            ),
+        )
+
         self.alien_points = int(
             self.alien_points * self.score_scale
         )
