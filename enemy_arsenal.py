@@ -2,10 +2,10 @@
 """
 Program Name: Alien Invasion - Enemy Arsenal
 Author: Abdullah Rashid
-Purpose: Manage enemy projectiles, sequential firing intervals,
-and projectile limits.
+Purpose: Manage enemy projectiles, firing intervals,
+and projectile limits independently of the enemy fleet.
 Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
-Date Updated: November 11, 2026
+Date Updated: November 12, 2026
 """
 
 from typing import TYPE_CHECKING
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class EnemyArsenal:
-    """Manage projectiles fired by the enemy fleet."""
+    """Manage projectiles fired from enemy launch positions."""
 
     def __init__(self, game: "AlienInvasion") -> None:
         """Initialize the enemy projectile group and firing timer."""
@@ -30,6 +30,21 @@ class EnemyArsenal:
         self.last_fire_time = pygame.time.get_ticks()
         self.next_firing_index = 0
 
+        self.firing_positions = self._create_firing_positions()
+
+    def _create_firing_positions(self) -> list[tuple[float, float]]:
+        """Create evenly spaced launch positions across the screen."""
+        position_count = self.settings.enemy_group_size
+        screen_width = self.settings.screen_w
+
+        spacing = screen_width / (position_count + 1)
+        launch_y = 80.0
+
+        return [
+            (spacing * (index + 1), launch_y)
+            for index in range(position_count)
+        ]
+
     def update(self) -> None:
         """Update enemy projectiles and control enemy firing."""
         self.projectiles.update()
@@ -37,7 +52,7 @@ class EnemyArsenal:
         self._check_enemy_firing()
 
     def _check_enemy_firing(self) -> None:
-        """Fire sequentially from left to right across the formation."""
+        """Fire sequentially from left to right across launch positions."""
         current_time = pygame.time.get_ticks()
 
         if (
@@ -52,21 +67,19 @@ class EnemyArsenal:
         ):
             return
 
-        aliens = sorted(
-            self.game.fleet.aliens.sprites(),
-            key=lambda alien: alien.rect.centerx,
-        )
-
-        if not aliens:
+        if not self.firing_positions:
             return
 
-        self.next_firing_index %= len(aliens)
+        self.next_firing_index %= len(self.firing_positions)
 
-        firing_alien = aliens[self.next_firing_index]
+        start_x, start_y = self.firing_positions[
+            self.next_firing_index
+        ]
 
         projectile = EnemyBullet(
             self.game,
-            firing_alien,
+            start_x,
+            start_y,
         )
 
         self.projectiles.add(projectile)
@@ -89,3 +102,4 @@ class EnemyArsenal:
         """Remove all active enemy projectiles."""
         self.projectiles.empty()
         self.next_firing_index = 0
+        self.last_fire_time = pygame.time.get_ticks()

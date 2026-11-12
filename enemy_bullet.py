@@ -4,7 +4,7 @@ Program Name: Alien Invasion - Targeted Enemy Projectile
 Author: Abdullah Rashid
 Purpose: Define enemy projectiles that aim toward the player's ship.
 Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
-Date Updated: November 11, 2026
+Date Updated: November 12, 2026
 """
 
 import math
@@ -15,7 +15,6 @@ from pygame.sprite import Sprite
 
 if TYPE_CHECKING:
     from alien_invasion import AlienInvasion
-    from alien import Alien
 
 
 class EnemyBullet(Sprite):
@@ -24,12 +23,12 @@ class EnemyBullet(Sprite):
     def __init__(
         self,
         game: "AlienInvasion",
-        alien: "Alien",
+        start_x: float,
+        start_y: float,
     ) -> None:
-        """Initialize a projectile aimed at the player's position."""
+        """Initialize a projectile at an enemy firing position."""
         super().__init__()
 
-        self.game = game
         self.screen = game.screen
         self.settings = game.settings
 
@@ -45,16 +44,11 @@ class EnemyBullet(Sprite):
             ),
         )
 
-        # Calculate the direction from the alien to the ship.
-        start_x = float(alien.rect.centerx)
-        start_y = float(alien.rect.bottom)
-
         target_x = float(game.ship.rect.centerx)
         target_y = float(game.ship.rect.centery)
 
         difference_x = target_x - start_x
         difference_y = target_y - start_y
-
         distance = math.hypot(difference_x, difference_y)
 
         if distance == 0:
@@ -70,7 +64,6 @@ class EnemyBullet(Sprite):
                 * self.settings.enemy_bullet_speed
             )
 
-        # Rotate the projectile to follow its travel direction.
         angle = -math.degrees(
             math.atan2(self.velocity_x, self.velocity_y)
         )
@@ -81,13 +74,13 @@ class EnemyBullet(Sprite):
         )
 
         self.rect = self.image.get_rect()
-        self.rect.midtop = alien.rect.midbottom
+        self.rect.midtop = (round(start_x), round(start_y))
 
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
     def update(self) -> None:
-        """Move the projectile toward the player's ship."""
+        """Move the projectile toward the player's position."""
         self.x += self.velocity_x
         self.y += self.velocity_y
 

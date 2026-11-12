@@ -4,7 +4,7 @@ Program Name: Alien Invasion - Track 1: Custom Game Mechanics
 Author: Abdullah Rashid
 Purpose: Configure player, enemy, projectile, asset, and gameplay settings.
 Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
-Date Updated: November 11, 2026
+Date Updated: November 12, 2026
 """
 
 from pathlib import Path
