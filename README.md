@@ -1,93 +1,265 @@
 # Alien Invasion — Track 1: Custom Game Mechanics
 
-## Milestone 1 — Rapid Prototype of Core Mechanics
+**Author:** Abdullah Rashid  
+**Language:** Python 3.12  
+**Game Framework:** Pygame 2.6.1  
+**Development Environment:** Visual Studio Code  
+**Submission Branch:** `track_1_mechanics`
 
-### Project Overview
+---
 
-Alien Invasion is a Python-based space shooter developed using Pygame. This Milestone 1 prototype focuses on custom player controls, laser firing, and targeted enemy return fire. The primary objective is to demonstrate a mechanic in which enemy projectiles travel toward the player's spaceship, requiring the player to dodge incoming attacks while returning fire.
+## 1. Project Overview
 
-The prototype establishes the foundation for integrating the custom enemy fleet and advanced collision mechanics in Milestone 2.
+Alien Invasion is a Python-based 2D space shooter developed using Pygame. The project extends the instructor-provided starter code with custom gameplay mechanics, including player movement, projectile firing, enemy attacks, alien fleet movement, collision detection, and game-state management.
 
-### Milestone 1 Features
+The development is organized into milestones. Each milestone introduces and demonstrates additional gameplay functionality while maintaining a modular project structure.
+
+## 2. Milestone 1 — Core Gameplay Mechanics
+
+Milestone 1 established the initial gameplay prototype, focusing on player controls and targeted enemy return fire.
+
+### Implemented Features
 
 - Player spaceship movement using the left and right arrow keys.
 - Player laser firing using the Space key.
 - Configurable player projectile speed and projectile limits.
-- Enemy projectiles aimed diagonally toward the player's position.
-- Sequential enemy firing with configurable firing intervals.
-- Configurable enemy projectile speed and projectile limits.
+- Enemy projectiles aimed toward the player's current position.
+- Configurable enemy firing intervals and projectile limits.
 - Collision detection between enemy projectiles and the player.
-- Collision response and player lives.
+- Player life reduction and collision response.
+- Ship repositioning after being hit.
 - Laser and impact sound effects.
-- Difficulty settings designed to support increasingly challenging enemy attacks in later development.
 
-### Technologies
+### Milestone 1 Demonstration
+
+**YouTube Unlisted Video:** [Insert the actual Milestone 1 video URL]
+
+## 3. Milestone 2 — Alien Fleet and Collision Mechanics
+
+Milestone 2 extends the prototype by integrating the alien fleet and additional gameplay interactions.
+
+### Implemented Features
+
+- Creation and management of multiple alien sprites.
+- Alien fleet formation and coordinated movement.
+- Horizontal alien movement across the game screen.
+- Fleet direction reversal when aliens reach screen boundaries.
+- Player projectile interaction with aliens.
+- Alien-related collision and gameplay behavior.
+- Integration of the alien fleet with the main game controller.
+- Game statistics and player-life management.
+- Continued support for player and enemy projectile mechanics.
+
+### Main Components
+
+| File | Responsibility |
+|---|---|
+| `alien.py` | Defines individual alien behavior and properties. |
+| `alien_fleet.py` | Creates and manages the alien fleet and its movement. |
+| `game_stats.py` | Manages game statistics and player lives. |
+| `enemy_arsenal.py` | Controls enemy projectile creation and management. |
+| `enemy_bullet.py` | Defines enemy projectile movement and behavior. |
+| `alien_invasion.py` | Coordinates the main game loop, events, and gameplay systems. |
+| `ship.py` | Manages player spaceship behavior and movement. |
+| `arsenal.py` | Manages player projectile creation and updates. |
+| `bullet.py` | Defines player projectile behavior. |
+| `settings.py` | Stores gameplay, screen, asset, and difficulty settings. |
+
+### Milestone 2 Demonstration
+
+**YouTube Unlisted Video:** [Insert the actual Milestone 2 video URL]
+
+## 4. Technologies and Dependencies
+
+The project uses:
 
 - Python 3.12
 - Pygame 2.6.1
 - Visual Studio Code
-- Git and GitHub
+- Git
+- GitHub
 
-### Installation
+The required Python dependency is listed in `requirements.txt`.
 
-1. Install Python 3.12.
-2. Clone the repository:
+## 5. Project Structure
+
+```text
+Alien-Invasion-Project/
+│
+├── Assets/
+│   ├── Fonts/
+│   ├── file/
+│   ├── images/
+│   └── sound/
+│
+├── alien.py
+├── alien_fleet.py
+├── alien_invasion.py
+├── arsenal.py
+├── bullet.py
+├── button.py
+├── enemy_arsenal.py
+├── enemy_bullet.py
+├── game_stats.py
+├── hud.py
+├── settings.py
+├── ship.py
+│
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
+
+## 6. Installation and Setup
+
+### Prerequisites
+
+Install the following software:
+
+1. Python 3.12
+2. Git for Windows
+3. Visual Studio Code
+4. Microsoft Python extension for Visual Studio Code
+
+### Clone the Repository
+
+Open PowerShell or the VS Code terminal and run:
 
 ```powershell
 git clone https://github.com/arashid7868/Alien-Invasion-Project.git
 ```
 
-3. Navigate into the project directory:
+Navigate into the project directory:
 
 ```powershell
 cd Alien-Invasion-Project
 ```
 
-4. Install dependencies:
+Switch to the project development branch:
 
 ```powershell
-py -3.12 -m pip install -r requirements.txt
+git checkout track_1_mechanics
 ```
 
-### Running the Prototype
+### Create a Virtual Environment
 
 ```powershell
-py -3.12 alien_invasion.py
+py -3.12 -m venv .venv
 ```
 
-### Controls
+Activate the environment:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks activation, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### Install Dependencies
+
+Upgrade pip:
+
+```powershell
+python -m pip install --upgrade pip
+```
+
+Install the project requirements:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Verify the Pygame installation:
+
+```powershell
+python -c "import pygame; print(pygame.version.ver)"
+```
+
+## 7. Running the Game
+
+Make sure the virtual environment is activated and the terminal is located in the project root directory.
+
+Run:
+
+```powershell
+python alien_invasion.py
+```
+
+The Pygame window should open and display the game.
+
+## 8. Game Controls
 
 | Key | Action |
 |---|---|
-| Left Arrow | Move left |
-| Right Arrow | Move right |
-| Spacebar | Fire player laser |
-| Q | Quit |
+| Left Arrow | Move the player's spaceship left |
+| Right Arrow | Move the player's spaceship right |
+| Spacebar | Fire player projectiles |
+| Q | Quit the game |
 
-### Development Roadmap
+## 9. Configuration
 
-**Milestone 1:** Establish player movement, player projectiles, and targeted enemy return fire.
+Gameplay settings are maintained in `settings.py`.
 
-**Milestone 2:** Integrate the custom enemy fleet, advanced collision behavior, and fleet-related gameplay mechanics.
+These include:
 
-**Final Submission:** Complete the game-state system, redesigned interface, HUD, scoring, and restart functionality.
+- Screen width and height.
+- Frames per second.
+- Player movement speed.
+- Player projectile speed and limits.
+- Enemy projectile speed and limits.
+- Enemy firing intervals.
+- Alien dimensions and movement speed.
+- Fleet spacing and formation settings.
+- Player lives and difficulty settings.
+- Asset file paths.
 
-### Version Control
+This configuration-based approach makes it easier to adjust gameplay without changing the core logic of every class.
 
-The project is maintained using Git and GitHub. Development is organized on the `track_1_mechanics` branch with meaningful commits documenting implementation progress.
+## 10. Version Control and Development
 
-### Author
+The project uses Git for source-code management and GitHub for remote repository hosting.
 
-Abdullah Rashid
+Development and milestone submissions are maintained on:
 
-### Starter Code
+```text
+track_1_mechanics
+```
 
-https://github.com/RedBeard41/alien_Invasion_starter
+Meaningful commits are used to document implementation, corrections, integration, and milestone progress.
 
-### Submission Repository
+**Submission Repository:**
 
 https://github.com/arashid7868/Alien-Invasion-Project
 
-### Milestone 1 Demo
+**Development Branch:**
 
-YouTube Unlisted demo link: **(https://youtu.be/Q1RiC6YJII4)**
+https://github.com/arashid7868/Alien-Invasion-Project/tree/track_1_mechanics
+
+## 11. Development Roadmap
+
+| Stage | Development Focus |
+|---|---|
+| Milestone 1 | Player movement, projectile firing, and targeted enemy return fire. |
+| Milestone 2 | Alien fleet integration, fleet movement, and collision mechanics. |
+| Final Submission | Complete the remaining required gameplay, interface, scoring, and game-state functionality. |
+
+## 12. Author and Source
+
+**Author:** Abdullah Rashid
+
+**Instructor Starter Repository:**
+
+https://github.com/RedBeard41/alien_Invasion_starter
+
+**Submission Repository:**
+
+https://github.com/arashid7868/Alien-Invasion-Project
+
+---
+
+*This project is developed as part of the Python Pygame Alien Invasion course assignment.*
