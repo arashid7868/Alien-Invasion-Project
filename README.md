@@ -32,7 +32,7 @@ Milestone 1 established the initial gameplay prototype, focusing on player contr
 
 ### Milestone 1 Demonstration
 
-**YouTube Unlisted Video:** [Insert the actual Milestone 1 video URL]
+**YouTube Unlisted Video:** [https://youtu.be/Q1RiC6YJII4]
 
 ## 3. Milestone 2 — Alien Fleet and Collision Mechanics
 
@@ -67,7 +67,7 @@ Milestone 2 extends the prototype by integrating the alien fleet and additional 
 
 ### Milestone 2 Demonstration
 
-**YouTube Unlisted Video:** [Insert the actual Milestone 2 video URL]
+**YouTube Unlisted Video:** [---]
 
 ## 4. Technologies and Dependencies
 
