@@ -90,4 +90,4 @@ https://github.com/arashid7868/Alien-Invasion-Project
 
 ### Milestone 1 Demo
 
-YouTube Unlisted demo link: **[Add link after recording]**
+YouTube Unlisted demo link: **(https://youtu.be/Q1RiC6YJII4)**
