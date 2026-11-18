@@ -2,34 +2,37 @@
 """
 Program Name: Alien Invasion - Track 1: Custom Game Mechanics
 Author: Abdullah Rashid
-Purpose: Demonstrate player controls and targeted enemy return fire.
+Purpose: Run the M2 alien fleet, return-fire, and collision prototype.
 Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
-Date Updated: November 12, 2026
+Date Updated: November 18, 2026
 """
 
 import sys
 
 import pygame
 
+from alien_fleet import AlienFleet
 from arsenal import Arsenal
 from enemy_arsenal import EnemyArsenal
+from game_stats import GameStats
 from settings import Settings
 from ship import Ship
 
 
 class AlienInvasion:
-    """Manage the Milestone 1 game prototype."""
+    """Manage the Milestone 2 alien fleet game."""
 
     def __init__(self) -> None:
-        """Initialize the game and create its resources."""
+        """Initialize Pygame and create the game resources."""
         pygame.init()
         self.settings = Settings()
 
         self.screen = pygame.display.set_mode(
             (self.settings.screen_w, self.settings.screen_h)
         )
+
         pygame.display.set_caption(
-            "Alien Invasion - Track 1: Mechanics - M1"
+            "Alien Invasion - Track 1: Mechanics - M2"
         )
 
         self.bg = pygame.image.load(
@@ -44,7 +47,6 @@ class AlienInvasion:
         self.running = True
         self.clock = pygame.time.Clock()
         self.space_pressed = False
-        self.ships_left = self.settings.ship_limit
 
         pygame.mixer.init()
 
@@ -58,14 +60,23 @@ class AlienInvasion:
         )
         self.impact_sound.set_volume(0.7)
 
-        self.ship = Ship(self, Arsenal(self))
-        self.enemy_arsenal = EnemyArsenal(self)
+        self.stats = GameStats(self)
 
-        print("Milestone 1 prototype started.")
-        print(f"Player lives: {self.ships_left}")
+        self.ship = Ship(self, Arsenal(self))
+
+        self.alien_fleet = AlienFleet(self)
+
+        self.enemy_arsenal = EnemyArsenal(
+            self,
+            self.alien_fleet,
+        )
+
+        print("Milestone 2 prototype started.")
+        print(f"Player lives: {self.stats.ships_left}")
+        print(f"Aliens in fleet: {len(self.alien_fleet.aliens)}")
 
     def run_game(self) -> None:
-        """Run the Milestone 1 game loop."""
+        """Run the main Milestone 2 game loop."""
         while self.running:
             self._check_events()
 
@@ -74,9 +85,10 @@ class AlienInvasion:
 
             self.ship.update()
             self.ship.arsenal.update_arsenal()
+            self.alien_fleet.update()
             self.enemy_arsenal.update()
 
-            self._check_enemy_bullet_collision()
+            self._check_collisions()
 
             if self.running:
                 self._update_screen()
@@ -85,37 +97,79 @@ class AlienInvasion:
 
         pygame.quit()
 
-    def _check_enemy_bullet_collision(self) -> None:
-        """Respond when an enemy projectile hits the player."""
+    def _check_collisions(self) -> None:
+        """Check player attacks, enemy attacks, and invasion conditions."""
+        self._check_player_bullet_collisions()
+
+        if not self.running:
+            return
+
         if pygame.sprite.spritecollideany(
             self.ship,
             self.enemy_arsenal.projectiles,
         ):
             self._ship_hit()
+            return
+
+        if pygame.sprite.spritecollideany(
+            self.ship,
+            self.alien_fleet.aliens,
+        ):
+            self._ship_hit()
+            return
+
+        if self.alien_fleet.check_bottom():
+            self._ship_hit()
+
+    def _check_player_bullet_collisions(self) -> None:
+        """Remove aliens and player bullets when they collide."""
+        pygame.sprite.groupcollide(
+            self.ship.arsenal.arsenal,
+            self.alien_fleet.aliens,
+            True,
+            True,
+        )
+
+        if not self.alien_fleet.aliens:
+            print("Fleet destroyed! A new fleet is approaching.")
+            self._reset_fleet()
 
     def _ship_hit(self) -> None:
-        """Reduce player lives and respond to an enemy projectile hit."""
+        """Handle a collision that costs the player one life."""
         self.impact_sound.play()
-        self.ships_left -= 1
 
-        print(f"Enemy projectile hit! Lives remaining: {self.ships_left}")
+        has_lives = self.stats.lose_ship()
+
+        print(
+            f"Player hit! Lives remaining: "
+            f"{self.stats.ships_left}"
+        )
 
         self.ship.arsenal.arsenal.empty()
         self.enemy_arsenal.empty()
         self.ship.center_ship()
         self.space_pressed = False
 
-        if self.ships_left <= 0:
-            print("Game over!")
+        if not has_lives:
+            print("Game over! No lives remaining.")
             self.running = False
             return
 
+        self._reset_fleet()
+
         pygame.time.delay(500)
 
+    def _reset_fleet(self) -> None:
+        """Create a fresh fleet and reset its movement direction."""
+        self.settings.alien_direction = 1
+        self.alien_fleet.create_fleet()
+        self.enemy_arsenal.empty()
+
     def _update_screen(self) -> None:
-        """Draw the background, projectiles, and player."""
+        """Draw the background, fleet, projectiles, and player."""
         self.screen.blit(self.bg, (0, 0))
 
+        self.alien_fleet.draw()
         self.ship.arsenal.draw()
         self.enemy_arsenal.draw()
         self.ship.draw()
@@ -159,7 +213,7 @@ class AlienInvasion:
         self,
         event: pygame.event.Event,
     ) -> None:
-        """Respond when keyboard keys are released."""
+        """Respond when the player releases a key."""
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = False
 
@@ -171,7 +225,7 @@ class AlienInvasion:
 
     @staticmethod
     def _quit_game() -> None:
-        """Shut down Pygame and exit."""
+        """Close Pygame and exit the application."""
         pygame.quit()
         sys.exit()
 

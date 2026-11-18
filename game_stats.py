@@ -1,72 +1,36 @@
 
-"""Track game statistics and manage persistent high scores."""
-
-import json
-
-from settings import Settings
+"""
+Program Name: Alien Invasion - Track 1: Custom Game Mechanics
+Author: Abdullah Rashid
+Purpose: Track player lives and the active state during gameplay.
+Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
+Date Updated: November 18, 2026
+"""
 
 
 class GameStats:
-    """Track the statistics and state of Alien Invasion."""
+    """Track the gameplay state and remaining player lives."""
 
     def __init__(self, game) -> None:
-        """Initialize the game's statistics."""
+        """Initialize game statistics using the game settings."""
         self.game = game
-        self.settings: Settings = game.settings
+        self.settings = game.settings
 
-        self.game_active = False
+        self.game_active = True
 
-        self._load_scores()
         self.reset_stats()
 
     def reset_stats(self) -> None:
-        """Reset statistics that change during a new game."""
+        """Reset the player's remaining lives."""
         self.ships_left = self.settings.ship_limit
-        self.score = 0
-        self.level = 1
-        self.max_score = 0
 
-    def _load_scores(self) -> None:
-        """Load the saved high score from the JSON file."""
-        self.settings.scores_file.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
+    def lose_ship(self) -> bool:
+        """Remove one life and return whether the player has lives left."""
+        if self.ships_left > 0:
+            self.ships_left -= 1
 
-        try:
-            with self.settings.scores_file.open(
-                "r",
-                encoding="utf-8",
-            ) as score_file:
-                scores = json.load(score_file)
+        if self.ships_left <= 0:
+            self.game_active = False
+            return False
 
-            self.hi_score = int(scores.get("hi_score", 0))
-
-        except (FileNotFoundError, json.JSONDecodeError, TypeError, ValueError):
-            self.hi_score = 0
-
-    def save_scores(self) -> None:
-        """Save the high score to the JSON file."""
-        self.settings.scores_file.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        scores = {
-            "hi_score": self.hi_score,
-        }
-
-        with self.settings.scores_file.open(
-            "w",
-            encoding="utf-8",
-        ) as score_file:
-            json.dump(scores, score_file, indent=4)
-
-    def check_high_score(self) -> None:
-        """Update and save the high score when necessary."""
-        if self.score > self.hi_score:
-            self.hi_score = self.score
-            self.save_scores()
-
-        if self.score > self.max_score:
-            self.max_score = self.score
+        return True

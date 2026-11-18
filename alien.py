@@ -1,11 +1,10 @@
 
 """
-Program Name: Alien Invasion - Advancing Enemy
+Program Name: Alien Invasion - Track 1: Custom Game Mechanics
 Author: Abdullah Rashid
-Purpose: Define an enemy that advances toward the player's ship
-while moving horizontally with its formation.
-Starter Code: https://github.com/RedBeard41/alien_Invasion_starter
-Date Updated: November 11, 2026
+Purpose: Define an advancing alien that moves with its fleet.
+Starter Code: https://github.com/RedBeard41/alien_Invasion_Project
+Date Updated: November 18, 2026
 """
 
 from typing import TYPE_CHECKING
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class Alien(Sprite):
-    """Represent an advancing enemy spaceship."""
+    """Represent an individual advancing enemy spaceship."""
 
     def __init__(
         self,
@@ -26,7 +25,7 @@ class Alien(Sprite):
         x: float,
         y: float,
     ) -> None:
-        """Initialize the alien and set its starting position."""
+        """Initialize an alien at its assigned fleet position."""
         super().__init__()
 
         self.fleet = fleet
@@ -47,14 +46,14 @@ class Alien(Sprite):
         )
 
         self.rect = self.image.get_rect()
-        self.rect.x = round(x)
-        self.rect.y = round(y)
+        self.x = float(x)
+        self.y = float(y)
 
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.rect.x = round(self.x)
+        self.rect.y = round(self.y)
 
     def update(self) -> None:
-        """Advance the alien downward and move it horizontally."""
+        """Move the alien horizontally and advance it downward."""
         self.x += (
             self.settings.alien_speed
             * self.settings.alien_direction
@@ -66,17 +65,17 @@ class Alien(Sprite):
         self.rect.y = round(self.y)
 
     def check_edges(self) -> bool:
-        """Return True when the alien reaches a screen edge."""
+        """Return True when the alien reaches a horizontal screen edge."""
         return (
             self.rect.right >= self.screen_rect.right
             or self.rect.left <= self.screen_rect.left
         )
 
     def drop_down(self, distance: int) -> None:
-        """Move the alien downward by a specified distance."""
+        """Move the alien downward when the fleet changes direction."""
         self.y += distance
         self.rect.y = round(self.y)
 
     def draw_alien(self) -> None:
-        """Draw the enemy spaceship."""
+        """Draw the alien on the game screen."""
         self.screen.blit(self.image, self.rect)
